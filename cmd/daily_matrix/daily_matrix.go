@@ -117,6 +117,13 @@ func populateTestFromStepFinished(test *v1.TestResult, step_test_finished artifa
 	return nil
 }
 
+func populateTestFromToolboxLogs(test *v1.TestResult, toolbox_logs artifacts.ArtifactResult) error {
+	//for toolbox_step_json := range toolbox_logs {
+	// test.ToolboxStepsResults[name] = ToolboxStepResult{name, ok, failures, ignored}
+	//}
+	return nil
+}
+
 func populateTestMatrices(matricesSpec *v1.MatricesSpec) error {
 	for matrix_name, test_matrix := range matricesSpec.Matrices {
 		log.Printf("* %s: %s\n", matrix_name, test_matrix.Description)
@@ -159,6 +166,12 @@ func populateTestMatrices(matricesSpec *v1.MatricesSpec) error {
 					}
 				}
 
+				test_toolbox_logs, err := artifacts.FetchTestToolboxLogs(test_matrix, matrix_name, *test, test.TestResult)
+
+				if err = populateTestFromToolboxLogs(&test.TestResult, test_toolbox_logs); err != nil {
+					log.Warningf("Failed to get the toolbox step logs of the test %s/%s: %v", test.ProwName, test_build_id, err)
+				}
+
 				old_test_build_ids, old_tests, err := artifacts.FetchLastNTestResults(test_matrix, matrix_name, test.ProwName, matricesSpec.NbTestHistory,
 					"finished.json", artifacts.TypeJson)
 				if err != nil {
@@ -175,6 +188,13 @@ func populateTestMatrices(matricesSpec *v1.MatricesSpec) error {
 							test.ProwName, old_test_build_id, err)
 						continue
 					}
+
+					old_test_toolbox_logs, err := artifacts.FetchTestToolboxLogs(test_matrix, matrix_name, *test, old_test)
+
+					if err = populateTestFromToolboxLogs(&old_test, old_test_toolbox_logs); err != nil {
+						log.Warningf("Failed to get the toolbox step logs of the test %s/%s: %v", test.ProwName, test_build_id, err)
+					}
+
 					if old_test.Passed {
 						continue
 					}

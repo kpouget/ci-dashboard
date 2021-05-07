@@ -99,7 +99,7 @@ func fetchJsonArtifact(test_matrix v1.MatrixSpec, path string) (JsonResult, erro
 	var result JsonResult
 	err = json.Unmarshal(content, &result)
 	if err != nil {
-		fetchRemoveFromCache(test_matrix, path)
+		//fetchRemoveFromCache(test_matrix, path)
 		return nil, fmt.Errorf("error parsing the JSON of %s: %v", path, err)
 	}
 
@@ -140,11 +140,11 @@ func FetchLastTestResult(test_matrix v1.MatrixSpec, matrix_name string, test v1.
 		return "", ArtifactResult{}, fmt.Errorf("error validating the last test build_id from %s: %v",
 			last_test_path, err)
 	}
-
+	/*
 	if err = fetchRemoveFromCache(test_matrix, last_test_path); err != nil {
 		log.Warningf("Failed to remove %s from cache : %v", last_test_path, err)
 	}
-
+*/
 	last_test_file, err := fetchTestResult(test_matrix, test.ProwName,
 		string(last_test_build_id), filename, filetype)
 	if (err != nil) {
@@ -200,4 +200,9 @@ func FetchLastNTestResults(test_matrix v1.MatrixSpec, matrix_name, prow_name str
 func FetchTestStepResult(test_matrix v1.MatrixSpec, test_result v1.TestResult, filename string, filetype ArtifactType) (ArtifactResult, error) {
 	step_filenane := fmt.Sprintf("artifacts/%s/%s/%s", test_result.TestSpec.TestName, test_matrix.ProwStep, filename)
 	return fetchTestResult(test_matrix, test_result.TestSpec.ProwName, test_result.BuildId, step_filenane, filetype)
+}
+
+
+func FetchTestToolboxLogs(test_matrix v1.MatrixSpec, matrix_name string, test v1.TestSpec, test_result v1.TestResult) (ArtifactResult, error) {
+	return ArtifactResult{}, nil
 }

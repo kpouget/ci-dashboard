@@ -46,7 +46,7 @@ type TestResult struct {
 	/* *** */
 	TestSpec *TestSpec
 
-	ToolboxStepsResults []*ToolboxStepResult
+	ToolboxStepsResults []ToolboxStepResult
 }
 
 type TestSpec struct {
